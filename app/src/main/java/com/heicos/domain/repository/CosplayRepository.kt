@@ -34,4 +34,5 @@ interface CosplayRepository {
     )
 
     suspend fun getFullVideoCosplay(url: String): String
+    suspend fun deleteCosplayPreview(cosplayPreview: CosplayPreview)
 }

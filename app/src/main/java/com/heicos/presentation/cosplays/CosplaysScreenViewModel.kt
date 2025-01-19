@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.heicos.domain.model.SearchQuery
 import com.heicos.domain.use_case.DeleteAllSearchQueriesUseCase
+import com.heicos.domain.use_case.DeleteCosplayPreviewUseCase
 import com.heicos.domain.use_case.DeleteSearchQueryByIdUseCase
 import com.heicos.domain.use_case.GetCosplaysLastPageUseCase
 import com.heicos.domain.use_case.GetCosplaysUseCase
@@ -17,6 +18,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,7 +30,8 @@ class CosplaysScreenViewModel @Inject constructor(
     private val getSearchQueriesUseCase: GetSearchQueriesUseCase,
     private val upsertSearchQueryUseCase: UpsertSearchQueryUseCase,
     private val deleteSearchQueryByIdUseCase: DeleteSearchQueryByIdUseCase,
-    private val deleteAllSearchQueriesUseCase: DeleteAllSearchQueriesUseCase
+    private val deleteAllSearchQueriesUseCase: DeleteAllSearchQueriesUseCase,
+    private val deleteCosplayPreviewUseCase: DeleteCosplayPreviewUseCase
 ) : ViewModel() {
 
     private var isSearching = false
@@ -135,6 +138,12 @@ class CosplaysScreenViewModel @Inject constructor(
                 )
 
                 loadNextCosplays()
+            }
+
+            is CosplaysScreenEvents.DeleteCosplayPreview -> {
+                viewModelScope.launch {
+                    deleteCosplayPreviewUseCase(event.cosplayPreview)
+                }
             }
         }
     }

@@ -21,6 +21,20 @@ fun CosplayPreview.toCosplayPreviewEntity(
     )
 }
 
+fun CosplayPreview.toCosplayPreviewEntity(): CosplayPreviewEntity {
+    return CosplayPreviewEntity(
+        id = id,
+        name = title,
+        downloadedAt = null,
+        url = pageUrl,
+        previewUrl = previewUrl,
+        storyPageUrl = storyPageUrl,
+        viewedAt = null,
+        type = if (type is CosplayMediaType.Images) CosplayMediaType.IMAGES else CosplayMediaType.VIDEO
+    )
+}
+
+
 fun CosplayPreviewEntity.toCosplayPreview(date: String = ""): CosplayPreview {
     return CosplayPreview(
         id = id,

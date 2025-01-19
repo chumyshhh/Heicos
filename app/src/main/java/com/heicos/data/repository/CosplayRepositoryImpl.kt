@@ -173,6 +173,10 @@ class CosplayRepositoryImpl @Inject constructor(
         return videoUrl
     }
 
+    override suspend fun deleteCosplayPreview(cosplayPreview: CosplayPreview) {
+        dataBase.cosplayDao.deleteCosplayPreview(cosplayPreview.pageUrl)
+    }
+
     override suspend fun getCosplayTags(url: String): Flow<Resource<List<String>>> {
         return flow {
             emit(Resource.Loading(isLoading = true))

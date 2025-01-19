@@ -1,6 +1,7 @@
 package com.heicos.data.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -22,4 +23,7 @@ interface CosplayPreviewDao {
 
     @Update
     suspend fun updateCosplayPreview(cosplayPreviewEntity: CosplayPreviewEntity)
+
+    @Query("DELETE FROM CosplayPreviewEntity WHERE url = :url")
+    suspend fun deleteCosplayPreview(url: String)
 }

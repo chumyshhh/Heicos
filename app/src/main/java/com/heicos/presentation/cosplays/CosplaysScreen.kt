@@ -592,6 +592,9 @@ fun CosplaysScreen(
                                             )
                                         )
                                     }
+                                },
+                                onItemLongClickListener = {
+                                    viewModel.onEvent(CosplaysScreenEvents.DeleteCosplayPreview(cosplay))
                                 }
                             )
                         }

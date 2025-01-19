@@ -1,7 +1,12 @@
 package com.heicos.presentation.cosplays
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,12 +14,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -35,17 +47,42 @@ import com.heicos.presentation.util.IS_DOWNLOADED
 import com.heicos.presentation.util.IS_VIEWED
 import com.heicos.presentation.util.USER_AGENT_MOZILLA
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CosplayScreenItem(
     modifier: Modifier = Modifier,
     cosplay: CosplayPreview,
     navController: NavController,
-    onItemClickListener: () -> Unit
+    onItemClickListener: () -> Unit,
+    onItemLongClickListener: () -> Unit
 ) {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    var isViewed by rememberSaveable {
+        mutableStateOf(cosplay.isViewed)
+    }
+
+    var isDownloaded by rememberSaveable {
+        mutableStateOf(cosplay.isDownloaded)
+    }
+
+    isViewed =
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(cosplay.title + IS_VIEWED) == true
+
+    isDownloaded =
+        navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(cosplay.title + IS_DOWNLOADED) == true
+
     Card(
         modifier = modifier
             .padding(4.dp)
-            .clickable { onItemClickListener() }
+            .combinedClickable(
+                onClick = {
+                    onItemClickListener()
+                },
+                onLongClick = {
+                    isExpanded = !isExpanded
+                }
+            )
             .fillMaxWidth(),
         shape = RoundedCornerShape(5.dp)
     ) {
@@ -82,19 +119,70 @@ fun CosplayScreenItem(
                     }
                 }
             )
-            Box(
+
+            AnimatedContent(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black
+                    .padding(top = 16.dp)
+                    .align(Alignment.TopCenter),
+                targetState = isExpanded,
+                label = "cosplaysListSize",
+                transitionSpec = { fadeIn() togetherWith fadeOut() }
+            ) { expanded ->
+                if (expanded) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black
+                                    )
+                                )
                             ),
-                            startY = 450f
-                        )
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(
+                            onClick = {
+                                isViewed = false
+                                isDownloaded = false
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = cosplay.title + IS_VIEWED,
+                                    value = false
+                                )
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    key = cosplay.title + IS_DOWNLOADED,
+                                    value = false
+                                )
+                                cosplay.isViewed = false
+                                cosplay.isDownloaded = false
+                                onItemLongClickListener()
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = null,
+                                tint = Color.Red.copy(alpha = 0.7f)
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color.Black
+                                    ),
+                                    startY = 450f
+                                )
+                            )
                     )
-            )
+                }
+            }
+
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -105,9 +193,41 @@ fun CosplayScreenItem(
                 color = Color.White
             )
 
-            USER_AGENT_MOZILLA
-            val isDownloaded =
-                navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(cosplay.title + IS_DOWNLOADED) == true
+            /*androidx.compose.animation.AnimatedVisibility(
+                visible = isViewed || cosplay.isViewed,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                content = {
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(top = 4.dp, start = 4.dp),
+                        imageVector = ImageVector.vectorResource(R.drawable.is_viewed_eye),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            )
+
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isDownloaded || cosplay.isDownloaded,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                content = {
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 4.dp, end = 4.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.background.copy(alpha = 0.35F),
+                                shape = CircleShape
+                            ),
+                        imageVector = ImageVector.vectorResource(R.drawable.download_icon),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            )*/
 
             if (isDownloaded || cosplay.isDownloaded) {
                 Icon(
@@ -123,9 +243,6 @@ fun CosplayScreenItem(
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
-
-            val isViewed =
-                navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>(cosplay.title + IS_VIEWED) == true
 
             if (isViewed || cosplay.isViewed) {
                 Icon(
