@@ -263,21 +263,30 @@ class CosplayRepositoryImpl @Inject constructor(
 
         if (lastPage == null) {
             val lastUrlPage =
-                doc.select("div#outline").select("div#center_left").select("div#center")
-                    .select("div.wp-pagenavi").select("a.last").attr("href")
+                doc
+                    .select("div#outline")
+                    .select("div#center_left")
+                    .select("div#center")
+                    .select("div.wp-pagenavi")
+                    .select("a.last")
+                    .attr("href")
+
             val lastPageResult = lastUrlPage.substringAfter("page/")
             lastPage = lastPageResult.replace("/", "").toInt()
         }
 
-        val imageList = doc.select("div.image-list-item")
+        val imageBlock = doc.selectFirst("ul#image-list")
+        val imageList = imageBlock!!.select("div.image-list-item")
         for (i in 0 until imageList.size) {
             val pageUrl =
-                domain + imageList.select("div.image-list-item-image")
+                domain + imageList
+                    .select("div.image-list-item-image")
                     .select("a")
                     .eq(i)
                     .attr("href")
 
-            val storyPageUrl = domain + imageList.select("div.image-list-item-image")
+            val storyPageUrl = domain + imageList
+                .select("div.image-list-item-image")
                 .select("a")
                 .eq(i)
                 .attr("href")
@@ -293,12 +302,14 @@ class CosplayRepositoryImpl @Inject constructor(
                 image = image.replace("http", "https")
             }
 
-            val title = doc.select("p.image-list-item-title")
+            val title = doc
+                .select("p.image-list-item-title")
                 .select("a")
                 .eq(i)
                 .text()
 
-            val date = doc.select("p.image-list-item-regist-date")
+            val date = doc
+                .select("p.image-list-item-regist-date")
                 .select("span")
                 .eq(i)
                 .text()
