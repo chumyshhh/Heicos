@@ -11,6 +11,7 @@ import com.heicos.domain.model.SearchQuery
 import com.heicos.domain.repository.CosplayRepository
 import com.heicos.domain.util.CosplayMediaType
 import com.heicos.domain.util.CosplayType
+import com.heicos.presentation.util.USER_AGENT_MOZILLA
 import com.heicos.utils.Resource
 import com.heicos.utils.time.convertTime
 import kotlinx.coroutines.flow.Flow
@@ -259,7 +260,10 @@ class CosplayRepositoryImpl @Inject constructor(
         type: CosplayMediaType
     ): List<CosplayPreview> {
         val result = mutableListOf<CosplayPreview>()
-        val doc = Jsoup.connect(url).get()
+        val doc = Jsoup
+            .connect(url)
+            .userAgent(USER_AGENT_MOZILLA)
+            .get()
 
         if (lastPage == null) {
             val lastUrlPage =
