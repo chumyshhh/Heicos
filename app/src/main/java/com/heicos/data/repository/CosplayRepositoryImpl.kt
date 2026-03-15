@@ -143,7 +143,10 @@ class CosplayRepositoryImpl @Inject constructor(
             emit(Resource.Loading(isLoading = true))
             try {
                 val result = mutableListOf<String>()
-                val doc = Jsoup.connect(url).get()
+                val doc = Jsoup
+                    .connect(url)
+                    .userAgent(USER_AGENT_MOZILLA)
+                    .get()
 
                 doc.select("amp-img.auto-style").forEach { image ->
                     var imageUrl = image.attr("src")
